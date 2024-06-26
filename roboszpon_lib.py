@@ -1,5 +1,6 @@
 import can
 import struct
+import asyncio
 
 MSG_MOTOR_COMMAND = 0x01
 MSG_ACTION_REQUEST = 0x02
@@ -65,14 +66,14 @@ ROBOSZPON_PARAMETERS = {
 }
 
 
-def send_can_frame(canbus, frame_id, data):
+async def send_can_frame(canbus, frame_id, data):
     try:
         frame = can.Message(
             arbitration_id=frame_id,
             data=data.to_bytes(8, byteorder="big"),
             is_extended_id=False,
         )
-        canbus.send(frame)
+        await canbus.send(frame)
     except Exception as e:
         print(f"Error sending CAN frame: {e}")
 
@@ -126,16 +127,16 @@ def decode_message(frame_id, data):
     return {"node_id": node_id, "message_id": message_id, "data": data}
 
 
-def send_action_request(canbus, node_id, action_id):
-    send_can_frame(canbus, build_frame_id(node_id, MSG_ACTION_REQUEST), action_id)
+async def send_action_request(canbus, node_id, action_id):
+    await send_can_frame(canbus, build_frame_id(node_id, MSG_ACTION_REQUEST), action_id)
 
 
-def arm(canbus, node_id):
-    send_action_request(canbus, node_id, ACTION_ARM)
+async def arm(canbus, node_id):
+    await send_action_request(canbus, node_id, ACTION_ARM)
 
 
-def disarm(canbus, node_id):
-    send_action_request(canbus, node_id, ACTION_DISARM)
+async def disarm(canbus, node_id):
+    await send_action_request(canbus, node_id, ACTION_DISARM)
 
 
 def float_to_bits(value):
@@ -148,42 +149,44 @@ def bits_to_float(value):
     return struct.unpack("f", value_bits)[0]
 
 
-def send_motor_command(canbus, node_id, motor_command_type, command):
+async def send_motor_command(canbus, node_id, motor_command_type, command):
     data = ((motor_command_type & 0xFF) << 56) + (
         (float_to_bits(command) & 0xFFFFFFFF) << 24
     )
-    send_can_frame(canbus, build_frame_id(node_id, MSG_MOTOR_COMMAND), data)
+    await send_can_frame(canbus, build_frame_id(node_id, MSG_MOTOR_COMMAND), data)
 
 
-def send_duty_command(canbus, node_id, command):
-    send_motor_command(canbus, node_id, 0, command)
+async def send_duty_command(canbus, node_id, command):
+    await send_motor_command(canbus, node_id, 0, command)
 
 
-def send_velocity_command(canbus, node_id, command):
-    send_motor_command(canbus, node_id, 1, command)
+async def send_velocity_command(canbus, node_id, command):
+    await send_motor_command(canbus, node_id, 1, command)
 
 
-def send_position_command(canbus, node_id, command):
-    send_motor_command(canbus, node_id, 2, command)
+async def send_position_command(canbus, node_id, command):
+    await send_motor_command(canbus, node_id, 2, command)
 
 
-def emergency_stop(canbus):
-    send_can_frame(canbus, 0x001, 0)
+async def emergency_stop(canbus):
+    await send_can_frame(canbus, 0x001, 0)
 
 
-def send_parameter_write(canbus, node_id, parameter_id, value):
+async def send_parameter_write(canbus, node_id, parameter_id, value):
     data = ((parameter_id & 0xFF) << 56) + ((float_to_bits(value) & 0xFFFFFFFF) << 24)
-    send_can_frame(canbus, build_frame_id(node_id, MSG_PARAMETER_WRITE), data)
+    await send_can_frame(canbus, build_frame_id(node_id, MSG_PARAMETER_WRITE), data)
 
 
-def send_parameter_read(canbus, node_id, parameter_id):
-    send_can_frame(canbus, build_frame_id(node_id, MSG_PARAMETER_READ), parameter_id)
+async def send_parameter_read(canbus, node_id, parameter_id):
+    await send_can_frame(canbus, build_frame_id(node_id, MSG_PARAMETER_READ), parameter_id)
 
 
 import time
 
 
-def read_parameter_callback(canbus, can_notifier, node_id, parameter_id, callback):
+async def read_parameter_callback(canbus, can_notifier, node_id, parameter_id, callback):
+    queue = asyncio.Queue()
+
     def on_message_received(message: can.Message):
         decoded_message = decode_message(
             message.arbitration_id, int.from_bytes(message.data, byteorder="big")
@@ -193,8 +196,8 @@ def read_parameter_callback(canbus, can_notifier, node_id, parameter_id, callbac
             and decoded_message["message_id"] == MSG_PARAMETER_RESPONSE
             and decoded_message["parameter_id"] == parameter_id
         ):
-            callback(decoded_message["value"])
+            queue.put_nowait(decoded_message["value"])
             can_notifier.remove_listener(on_message_received)
 
     can_notifier.add_listener(on_message_received)
-    send_parameter_read(canbus, node_id, parameter_id)
+    await send_parameter_read(canbus, node_id, parameter_id)
