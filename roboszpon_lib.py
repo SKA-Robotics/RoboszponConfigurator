@@ -78,12 +78,12 @@ def send_can_frame(canbus, frame_id, data):
 
 
 def build_frame_id(node_id, message_id):
-    return ((node_id & 0b11111) << 6) + (message_id & 0b111111)
+    return ((node_id & 0b111111) << 5) + (message_id & 0b11111)
 
 
 def decode_message(frame_id, data):
-    node_id = (frame_id >> 6) & 0b11111
-    message_id = frame_id & 0b111111
+    node_id = (frame_id >> 5) & 0b111111
+    message_id = frame_id & 0b11111
     if message_id == MSG_STATUS_REPORT:
         mode = (data >> 62) & 0b11
         flags = data & 0xFFFF
