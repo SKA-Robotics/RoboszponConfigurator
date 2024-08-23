@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1384</width>
+    <width>1284</width>
     <height>592</height>
    </rect>
   </property>
@@ -21,6 +21,9 @@
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="3" rowspan="12">
      <widget class="QWidget" name="plotView" native="true">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
@@ -196,7 +199,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
@@ -217,6 +220,9 @@
           <layout class="QGridLayout" name="gridLayout_4">
            <item row="0" column="0">
             <widget class="QDoubleSpinBox" name="dutySpinBox">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="minimum">
               <double>-1.000000000000000</double>
              </property>
@@ -343,7 +349,11 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QComboBox" name="parameterComboBox"/>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QDoubleSpinBox" name="parameterSpinBox">
@@ -379,7 +389,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1384</width>
+     <width>1284</width>
      <height>22</height>
     </rect>
    </property>
@@ -448,6 +458,196 @@
   <action name="actionSoftware_reset">
    <property name="text">
     <string>Software reset</string>
+   </property>
+  </action>
+  <action name="actionOVERHEAT_TEMPERATURE">
+   <property name="text">
+    <string>OVERHEAT_TEMPERATURE</string>
+   </property>
+  </action>
+  <action name="actionNO_OVERHEAT_TEMPERATURE">
+   <property name="text">
+    <string>NO_OVERHEAT_TEMPERATURE</string>
+   </property>
+  </action>
+  <action name="actionPPID_Kp">
+   <property name="text">
+    <string>PPID_Kp</string>
+   </property>
+  </action>
+  <action name="actionPPID_Ki">
+   <property name="text">
+    <string>PPID_Ki</string>
+   </property>
+  </action>
+  <action name="actionPPID_KD">
+   <property name="text">
+    <string>PPID_Kd</string>
+   </property>
+  </action>
+  <action name="actionPPID_deadzone">
+   <property name="text">
+    <string>PPID_deadzone</string>
+   </property>
+  </action>
+  <action name="actionVPID_Kp">
+   <property name="text">
+    <string>VPID_Kp</string>
+   </property>
+  </action>
+  <action name="actionVPID_Ki">
+   <property name="text">
+    <string>VPID_Ki</string>
+   </property>
+  </action>
+  <action name="actionVPID_Kd">
+   <property name="text">
+    <string>VPID_Kd</string>
+   </property>
+  </action>
+  <action name="actionVPID_deadzone">
+   <property name="text">
+    <string>VPID_deadzone</string>
+   </property>
+  </action>
+  <action name="actionVPID_dUmax">
+   <property name="text">
+    <string>VPID_dUmax</string>
+   </property>
+  </action>
+  <action name="actionENCODER_ZERO">
+   <property name="text">
+    <string>ENCODER_ZERO</string>
+   </property>
+  </action>
+  <action name="actionENCODER_FILTER_WINDOW">
+   <property name="text">
+    <string>ENCODER_FILTER_WINDOW</string>
+   </property>
+  </action>
+  <action name="actionINVERT_ENCODER">
+   <property name="text">
+    <string>INVERT_ENCODER</string>
+   </property>
+  </action>
+  <action name="actionDISABLE_ENCODER_ERRORS">
+   <property name="text">
+    <string>DISABLE_ENCODER_ERRORS</string>
+   </property>
+  </action>
+  <action name="actionENCODER_ZERO_2">
+   <property name="text">
+    <string>ENCODER_ZERO</string>
+   </property>
+  </action>
+  <action name="actionENCODER_FILTER_WINDOW_2">
+   <property name="text">
+    <string>ENCODER_FILTER_WINDOW</string>
+   </property>
+  </action>
+  <action name="actionINVERT_ENCODER_2">
+   <property name="text">
+    <string>INVERT_ENCODER</string>
+   </property>
+  </action>
+  <action name="actionDISABLE_ENCODER_ERRORS_2">
+   <property name="text">
+    <string>DISABLE_ENCODER_ERRORS</string>
+   </property>
+  </action>
+  <action name="actionAXIS_OFFSET">
+   <property name="text">
+    <string>AXIS_OFFSET</string>
+   </property>
+  </action>
+  <action name="actionINVERT_AXIS">
+   <property name="text">
+    <string>INVERT_AXIS</string>
+   </property>
+  </action>
+  <action name="actionCURRENT_FeedForward">
+   <property name="text">
+    <string>CURRENT_FeedForward</string>
+   </property>
+  </action>
+  <action name="actionMIN_CURRENT">
+   <property name="text">
+    <string>MIN_CURRENT</string>
+   </property>
+  </action>
+  <action name="actionMAX_CURRENT">
+   <property name="text">
+    <string>MAX_CURRENT</string>
+   </property>
+  </action>
+  <action name="actionIIR_VALUE_CURMEAS">
+   <property name="text">
+    <string>IIR_VALUE_CURMEAS</string>
+   </property>
+  </action>
+  <action name="actionIIR_VALUE_VELMAS">
+   <property name="text">
+    <string>IIR_VALUE_VELMAS</string>
+   </property>
+  </action>
+  <action name="actionIIR_VALUE_PPIDU">
+   <property name="text">
+    <string>IIR_VALUE_PPIDU</string>
+   </property>
+  </action>
+  <action name="actionIIR_VALUE_VIPDU">
+   <property name="text">
+    <string>IIR_VALUE_VIPDU</string>
+   </property>
+  </action>
+  <action name="actionIIR_VALUE_CPIDU">
+   <property name="text">
+    <string>IIR_VALUE_CPIDU</string>
+   </property>
+  </action>
+  <action name="actionDUTY_DEADZONE">
+   <property name="text">
+    <string>DUTY_DEADZONE</string>
+   </property>
+  </action>
+  <action name="actionMAX_DUTY">
+   <property name="text">
+    <string>MAX_DUTY</string>
+   </property>
+  </action>
+  <action name="actionMIN_DUTY">
+   <property name="text">
+    <string>MIN_DUTY</string>
+   </property>
+  </action>
+  <action name="actionMIN_POSITION">
+   <property name="text">
+    <string>MIN_POSITION</string>
+   </property>
+  </action>
+  <action name="actionMAX_POSITION">
+   <property name="text">
+    <string>MAX_POSITION</string>
+   </property>
+  </action>
+  <action name="actionMIN_VELOCITY">
+   <property name="text">
+    <string>MIN_VELOCITY</string>
+   </property>
+  </action>
+  <action name="actionMAX_VELOCITY">
+   <property name="text">
+    <string>MAX_VELOCITY</string>
+   </property>
+  </action>
+  <action name="actionCOMMAND_TIMEOUT">
+   <property name="text">
+    <string>COMMAND_TIMEOUT</string>
+   </property>
+  </action>
+  <action name="actionREPORT_RATE">
+   <property name="text">
+    <string>REPORT_RATE</string>
    </property>
   </action>
  </widget>

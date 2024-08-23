@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QVBoxLayout,QAction, QMenu
 from PyQt5.QtCore import QStringListModel, QModelIndex, QTimer
 from PyQt5.QtGui import QPixmap
 from PyQt5 import uic
@@ -50,15 +50,14 @@ class MyLittleRoboszponSuite(QMainWindow):
 
         self.roboszpon = None
         self.armed = False
-
+        
         self.deviceList = QStringListModel()
         self.deviceIds = []
         self.devices = {}
         self.deviceListView.setModel(self.deviceList)
         self.deviceListView.clicked.connect(self.deviceListClicked)
 
-        self.parameterComboBox.addItems(roboszpon_lib.ROBOSZPON_PARAMETERS.keys())
-        self.parameterComboBox.currentTextChanged.connect(self.parameterComboBoxChanged)
+        self.init_parameters_menu()
         self.oldParameterValue = self.parameterSpinBox.value()
 
         self.armButton.clicked.connect(self.armButtonClicked)
@@ -305,6 +304,35 @@ class MyLittleRoboszponSuite(QMainWindow):
         self.duty_curve.setData(signal.timestamps, signal.values)
         signal = self.devices[self.roboszpon].temperature
         self.temperature_curve.setData(signal.timestamps, signal.values)
+    
+    def init_parameters_menu(self):
+        def add_group_to_menu(group_name, parameters):
+            group_menu = self.menuBar().findChild(QMenu, group_name)
+            if not group_menu:
+                group_menu = QMenu(group_name, self)
+                self.menuBar().addMenu(group_menu)
+
+            for param_name in parameters:
+                action = QAction(param_name, self)
+                action.triggered.connect(lambda checked, p=param_name: self.parameterMenuChanged(p))
+                group_menu.addAction(action)
+
+        add_group_to_menu("Temperature", roboszpon_lib.TEMPERATURE_PARAMETERS)
+        add_group_to_menu("PPID", roboszpon_lib.PPID_PARAMETERS)
+        add_group_to_menu("VPID", roboszpon_lib.VPID_PARAMETERS)
+        add_group_to_menu("CPID", roboszpon_lib.CPID_PARAMETERS)
+        add_group_to_menu("Encoder", roboszpon_lib.ENCODER_PARAMETERS)
+        add_group_to_menu("AXIS", roboszpon_lib.AXIS_PARAMETERS)
+        add_group_to_menu("Current", roboszpon_lib.CURRENT_PARAMETERS)
+        add_group_to_menu("IIR", roboszpon_lib.IIR_PARAMETERS)
+        add_group_to_menu("Duty", roboszpon_lib.DUTY_PARAMETERS)
+        add_group_to_menu("Position", roboszpon_lib.POSITION_PARAMETERS)
+        add_group_to_menu("Velocity", roboszpon_lib.VELOCITY_PARAMETERS)
+        add_group_to_menu("Report", roboszpon_lib.REPORTING_PARAMETERS)
+
+    def parameterMenuChanged(self, parameter_name):
+        self.label.setText(parameter_name)
+        self.updateParameterValue(parameter_name)
 
 
 if __name__ == "__main__":
