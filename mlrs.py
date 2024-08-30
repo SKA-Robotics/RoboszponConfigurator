@@ -406,36 +406,103 @@ class MyLittleRoboszponSuite(QMainWindow):
             layout = QVBoxLayout(tab)
 
             list_widget = QListWidget()
-            for param_name in parameters:
+            for param_name, display_name in parameters.items():
+                # Tworzenie elementu listy
                 item_widget = QWidget()
                 item_layout = QHBoxLayout(item_widget)
                 item_layout.setContentsMargins(0, 0, 0, 0)
-                label = QLabel(param_name)
-                activate_button = QPushButton("Aktywuj")
-                activate_button.clicked.connect(lambda _, pn=param_name: self.activate_parameter_in_dialog(pn))
-                item_layout.addWidget(label)
-                item_layout.addWidget(activate_button)
-                list_widget_item = QListWidgetItem(list_widget)
-                list_widget_item.setSizeHint(item_widget.sizeHint())
-                list_widget.setItemWidget(list_widget_item, item_widget)
 
+                # Nazwa parametru
+                label = QLabel(display_name)
+                item_layout.addWidget(label)
+
+                # Przycisk "Aktywuj"
+                activate_button = QPushButton("Aktywuj")
+                activate_button.clicked.connect(lambda checked, pn=param_name: self.activate_parameter_in_dialog(pn))
+                item_layout.addWidget(activate_button)
+
+                item_widget.setLayout(item_layout)
+
+                # Dodawanie widgetu do QListWidget
+                item = QListWidgetItem(list_widget)
+                item.setSizeHint(item_widget.sizeHint())
+                list_widget.setItemWidget(item, item_widget)
             list_widget.itemDoubleClicked.connect(self.parameterItemDoubleClicked)
 
             layout.addWidget(list_widget)
             self.tabWidgetParameters.addTab(tab, group_name)
 
-        add_parameters_to_tab("Temperature", roboszpon_lib.TEMPERATURE_PARAMETERS)
-        add_parameters_to_tab("PPID", roboszpon_lib.PPID_PARAMETERS)
-        add_parameters_to_tab("VPID", roboszpon_lib.VPID_PARAMETERS)
-        add_parameters_to_tab("CPID", roboszpon_lib.CPID_PARAMETERS)
-        add_parameters_to_tab("Encoder", roboszpon_lib.ENCODER_PARAMETERS)
-        add_parameters_to_tab("AXIS", roboszpon_lib.AXIS_PARAMETERS)
-        add_parameters_to_tab("Current", roboszpon_lib.CURRENT_PARAMETERS)
-        add_parameters_to_tab("IIR", roboszpon_lib.IIR_PARAMETERS)
-        add_parameters_to_tab("Duty", roboszpon_lib.DUTY_PARAMETERS)
-        add_parameters_to_tab("Position", roboszpon_lib.POSITION_PARAMETERS)
-        add_parameters_to_tab("Velocity", roboszpon_lib.VELOCITY_PARAMETERS)
-        add_parameters_to_tab("Report", roboszpon_lib.REPORTING_PARAMETERS)
+        # Nazwy parametrów
+        GENERAL_PARAMETERS = {
+            "COMMAND_TIMEOUT": "Command Timeout",
+            "REPORT_RATE": "Report Rate",
+            "OVERHEAT_TEMPERATURE": "Overheat Temperature",
+            "NO_OVERHEAT_TEMPERATURE": "No Overheat Temperature",
+            "DISABLE_ENCODER_ERRORS": "Disable Encoder Errors",
+        }
+
+        ENCODER_AND_AXIS_PARAMETERS = {
+            "ENCODER_ZERO": "Encoder Zero",
+            "AXIS_OFFSET": "Axis Offset",
+            "INVERT_AXIS": "Invert Axis",
+            "INVERT_ENCODER": "Invert Encoder",
+        }
+
+        PPID_PARAMETERS = {
+            "PPID_Kp": "Position K_p",
+            "PPID_Ki": "Position K_i",
+            "PPID_Kd": "Position K_d",
+            "PPID_deadzone": "Position Deadzone",
+            "PPID_dUmax": "Position dU_max",
+        }
+
+        VPID_PARAMETERS = {
+            "VPID_Kp": "Velocity K_p",
+            "VPID_Ki": "Velocity K_i",
+            "VPID_Kd": "Velocity K_d",
+            "VPID_deadzone": "Velocity Deadzone",
+            "VPID_dUmax": "Velocity dU_max",
+        }
+
+        CPID_PARAMETERS = {
+            "CURRENT_FeedForward": "Current Setpoint Feedforward Gain",
+            "CPID_Kp": "Current K_p",
+            "CPID_Ki": "Current K_i",
+            "CPID_Kd": "Current K_d",
+            "CPID_deadzone": "Current Deadzone",
+            "CPID_dUmax": "Current dU_max",
+        }
+
+        FILTER_PARAMETERS = {
+            "IIR_VALUE_CURMEAS": "Current Measurement Filter Strength",
+            "IIR_VALUE_VELMEAS": "Velocity Measurement Filter Strength",
+            "IIR_VALUE_PPIDU": "Position Setpoint Filter Strength",
+            "IIR_VALUE_VPIDU": "Velocity Setpoint Filter Strength",
+            "IIR_VALUE_CPIDU": "Duty Setpoint Filter Strength",
+            "ENCODER_FILTER_WINDOW": "Encoder Hardware Filter Window Length",
+        }
+
+        LIMIT_PARAMETERS = {
+            "MIN_POSITION": "Min Position",
+            "MAX_POSITION": "Max Position",
+            "MIN_VELOCITY": "Min Velocity",
+            "MAX_VELOCITY": "Max Velocity",
+            "MIN_CURRENT": "Min Current",
+            "MAX_CURRENT": "Max Current",
+            "MIN_DUTY": "Min Duty",
+            "MAX_DUTY": "Max Duty",
+            "DUTY_DEADZONE": "Duty Deadzone",
+        }
+
+        # Dodawanie grup parametrów jako zakładki
+        add_parameters_to_tab("General", GENERAL_PARAMETERS)
+        add_parameters_to_tab("Encoder & Axis", ENCODER_AND_AXIS_PARAMETERS)
+        add_parameters_to_tab("Position PID", PPID_PARAMETERS)
+        add_parameters_to_tab("Velocity PID", VPID_PARAMETERS)
+        add_parameters_to_tab("Current PID", CPID_PARAMETERS)
+        add_parameters_to_tab("Filters", FILTER_PARAMETERS)
+        add_parameters_to_tab("Limits", LIMIT_PARAMETERS)
+
 
 
 if __name__ == "__main__":

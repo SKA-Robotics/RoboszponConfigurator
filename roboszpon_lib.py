@@ -21,12 +21,23 @@ ROBOSZPON_MODE_STOPPED = 0x00
 ROBOSZPON_MODE_RUNNING = 0x01
 ROBOSZPON_MODE_ERROR = 0x02
 ROBOSZPON_MODES = {0: "STOPPED", 1: "RUNNING", 2: "ERROR"}
-TEMPERATURE_PARAMETERS = {
+
+GENERAL_PARAMETERS = {  # General Parameters
+    "COMMAND_TIMEOUT": 0x00,
+    "REPORT_RATE": 0x03,
     "OVERHEAT_TEMPERATURE": 0x50,
     "NO_OVERHEAT_TEMPERATURE": 0x51,
+    "DISABLE_ENCODER_ERRORS": 0x55,
 }
 
-PPID_PARAMETERS = {
+ENCODER_AND_AXIS_PARAMETERS = {  # Encoder and Axis Parameters
+    "ENCODER_ZERO": 0x01,
+    "AXIS_OFFSET": 0x02,
+    "INVERT_AXIS": 0x52,
+    "INVERT_ENCODER": 0x53,
+}
+
+PPID_PARAMETERS = {  # Position PID Parameters
     "PPID_Kp": 0x04,
     "PPID_Ki": 0x05,
     "PPID_Kd": 0x06,
@@ -34,7 +45,7 @@ PPID_PARAMETERS = {
     "PPID_dUmax": 0x0A,
 }
 
-VPID_PARAMETERS = {
+VPID_PARAMETERS = {  # Velocity PID Parameters
     "VPID_Kp": 0x0C,
     "VPID_Ki": 0x0D,
     "VPID_Kd": 0x0E,
@@ -42,7 +53,8 @@ VPID_PARAMETERS = {
     "VPID_dUmax": 0x12,
 }
 
-CPID_PARAMETERS = {
+CPID_PARAMETERS = {  # Current PID Parameters
+    "CURRENT_FeedForward": 0x1B,
     "CPID_Kp": 0x14,
     "CPID_Ki": 0x15,
     "CPID_Kd": 0x16,
@@ -50,53 +62,26 @@ CPID_PARAMETERS = {
     "CPID_dUmax": 0x1A,
 }
 
-ENCODER_PARAMETERS = {
-    "ENCODER_ZERO": 0x01,
-    "ENCODER_FILTER_WINDOW": 0x54,
-    "INVERT_ENCODER": 0x53,
-    "DISABLE_ENCODER_ERRORS": 0x55,
-}
-
-AXIS_PARAMETERS = {
-    "AXIS_OFFSET": 0x02,
-    "INVERT_AXIS": 0x52,
-}
-
-REPORTING_PARAMETERS = {
-    "COMMAND_TIMEOUT": 0x00,
-    "REPORT_RATE": 0x03,
-}
-
-CURRENT_PARAMETERS = {
-    "CURRENT_FeedForward": 0x1B,
-    "MIN_CURRENT": 0x27,
-    "MAX_CURRENT": 0x28,
-}
-
-IIR_PARAMETERS = {
+FILTER_PARAMETERS = {  # Filter Parameters
     "IIR_VALUE_CURMEAS": 0x1C,
     "IIR_VALUE_VELMEAS": 0x1D,
     "IIR_VALUE_PPIDU": 0x1E,
     "IIR_VALUE_VPIDU": 0x1F,
     "IIR_VALUE_CPIDU": 0x20,
+    "ENCODER_FILTER_WINDOW": 0x54,
 }
 
-DUTY_PARAMETERS = {
-    "DUTY_DEADZONE": 0x21,
-    "MIN_DUTY": 0x29,
-    "MAX_DUTY": 0x2F,
-}
-
-POSITION_PARAMETERS = {
+LIMIT_PARAMETERS = {  # Min/Max Limits
     "MIN_POSITION": 0x23,
     "MAX_POSITION": 0x24,
-}
-
-VELOCITY_PARAMETERS = {
     "MIN_VELOCITY": 0x25,
     "MAX_VELOCITY": 0x26,
+    "MIN_CURRENT": 0x27,
+    "MAX_CURRENT": 0x28,
+    "MIN_DUTY": 0x29,
+    "MAX_DUTY": 0x2F,
+    "DUTY_DEADZONE": 0x21,
 }
-
 
 def send_can_frame(canbus, frame_id, data):
     try:
