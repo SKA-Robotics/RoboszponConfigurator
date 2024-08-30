@@ -92,10 +92,11 @@ POSITION_PARAMETERS = {
     "MAX_POSITION": 0x24,
 }
 
-VELOCITY_PARAMETERS ={
+VELOCITY_PARAMETERS = {
     "MIN_VELOCITY": 0x25,
     "MAX_VELOCITY": 0x26,
 }
+
 
 def send_can_frame(canbus, frame_id, data):
     try:

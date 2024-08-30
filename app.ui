@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1284</width>
-    <height>592</height>
+    <height>725</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,87 +19,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="3" rowspan="12">
-     <widget class="QWidget" name="plotView" native="true">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1" rowspan="4">
-     <widget class="QGroupBox" name="groupBox_3">
-      <property name="minimumSize">
-       <size>
-        <width>180</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="title">
-       <string>Status</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QLabel" name="connectionLabel">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>No device selected.</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="stateLabel">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="flagsLabel">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="4" column="0">
+    <item row="6" column="0">
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -112,13 +32,6 @@
       </property>
      </spacer>
     </item>
-    <item row="8" column="1">
-     <widget class="QPushButton" name="armButton">
-      <property name="text">
-       <string>Arm</string>
-      </property>
-     </widget>
-    </item>
     <item row="1" column="1">
      <widget class="QLabel" name="logoLabel">
       <property name="text">
@@ -126,44 +39,15 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="1" colspan="2">
-     <widget class="QGroupBox" name="groupBox">
-      <property name="title">
-       <string> Detected devices</string>
-      </property>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <item row="1" column="1">
-        <widget class="QListView" name="deviceListView">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item row="9" column="1">
-     <widget class="QPushButton" name="stopAllButton">
+    <item row="10" column="1">
+     <widget class="QPushButton" name="armButton">
       <property name="text">
-       <string>Stop all</string>
+       <string>Arm</string>
       </property>
      </widget>
     </item>
-    <item row="11" column="1">
-     <spacer name="verticalSpacer_3">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>1</height>
-       </size>
-      </property>
-     </spacer>
+    <item row="3" column="1">
+     <widget class="QComboBox" name="comboBoxDevices"/>
     </item>
     <item row="0" column="1">
      <spacer name="horizontalSpacer">
@@ -181,7 +65,14 @@
       </property>
      </spacer>
     </item>
-    <item row="4" column="2" rowspan="6">
+    <item row="11" column="1">
+     <widget class="QPushButton" name="stopAllButton">
+      <property name="text">
+       <string>Stop all</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="2" rowspan="6">
      <widget class="QTabWidget" name="setpointGroup">
       <property name="enabled">
        <bool>false</bool>
@@ -333,52 +224,116 @@
       </widget>
      </widget>
     </item>
-    <item row="10" column="1" colspan="2">
-     <widget class="QGroupBox" name="parameterConfigurationGroup">
+    <item row="12" column="1">
+     <spacer name="verticalSpacer_3">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>1</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Devices</string>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="1" rowspan="4">
+     <widget class="QGroupBox" name="groupBox_3">
+      <property name="minimumSize">
+       <size>
+        <width>180</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="title">
+       <string>Status</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="connectionLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>No device selected.</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="stateLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="flagsLabel">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="4" column="1" colspan="2">
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Parameters</string>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="1" column="1">
+        <widget class="QTabWidget" name="tabWidgetParameters"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="0" column="3" rowspan="13">
+     <widget class="QWidget" name="plotView" native="true">
       <property name="enabled">
        <bool>false</bool>
       </property>
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="title">
-       <string>Parameter configuration</string>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout">
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>TextLabel</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QDoubleSpinBox" name="parameterSpinBox">
-         <property name="readOnly">
-          <bool>false</bool>
-         </property>
-         <property name="decimals">
-          <number>4</number>
-         </property>
-         <property name="minimum">
-          <double>-2137.000000000000000</double>
-         </property>
-         <property name="maximum">
-          <double>2137.000000000000000</double>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="parameterUpdateButton">
-         <property name="text">
-          <string>Update</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </widget>
     </item>
    </layout>
@@ -390,7 +345,7 @@
      <x>0</x>
      <y>0</y>
      <width>1284</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -416,9 +371,125 @@
     </property>
     <addaction name="actionSoftware_reset"/>
    </widget>
+   <widget class="QMenu" name="menuParameters">
+    <property name="title">
+     <string>Parameters</string>
+    </property>
+    <widget class="QMenu" name="menuTemperature">
+     <property name="title">
+      <string>Temperature</string>
+     </property>
+     <addaction name="actionOVERHEAT_TEMPERATURE"/>
+     <addaction name="actionNO_OVERHEAT_TEMPERATURE"/>
+    </widget>
+    <widget class="QMenu" name="menuPPID">
+     <property name="title">
+      <string>PPID</string>
+     </property>
+     <addaction name="actionPPID_Kp"/>
+     <addaction name="actionPPID_Ki"/>
+     <addaction name="actionPPID_KD"/>
+     <addaction name="actionPPID_deadzone"/>
+    </widget>
+    <widget class="QMenu" name="menuVPID">
+     <property name="title">
+      <string>VPID</string>
+     </property>
+     <addaction name="actionVPID_Kp"/>
+     <addaction name="actionVPID_Ki"/>
+     <addaction name="actionVPID_Kd"/>
+     <addaction name="actionVPID_deadzone"/>
+     <addaction name="actionVPID_dUmax"/>
+    </widget>
+    <widget class="QMenu" name="menuCPID">
+     <property name="title">
+      <string>CPID</string>
+     </property>
+     <addaction name="actionENCODER_ZERO"/>
+     <addaction name="actionENCODER_FILTER_WINDOW"/>
+     <addaction name="actionINVERT_ENCODER"/>
+     <addaction name="actionDISABLE_ENCODER_ERRORS"/>
+    </widget>
+    <widget class="QMenu" name="menuEncoder">
+     <property name="title">
+      <string>Encoder</string>
+     </property>
+     <addaction name="actionENCODER_ZERO_2"/>
+     <addaction name="actionENCODER_FILTER_WINDOW_2"/>
+     <addaction name="actionINVERT_ENCODER_2"/>
+     <addaction name="actionDISABLE_ENCODER_ERRORS_2"/>
+    </widget>
+    <widget class="QMenu" name="menuAXIS">
+     <property name="title">
+      <string>AXIS</string>
+     </property>
+     <addaction name="actionAXIS_OFFSET"/>
+     <addaction name="actionINVERT_AXIS"/>
+    </widget>
+    <widget class="QMenu" name="menuCurrent">
+     <property name="title">
+      <string>Current</string>
+     </property>
+     <addaction name="actionCURRENT_FeedForward"/>
+     <addaction name="actionMIN_CURRENT"/>
+     <addaction name="actionMAX_CURRENT"/>
+    </widget>
+    <widget class="QMenu" name="menuIIR">
+     <property name="title">
+      <string>IIR</string>
+     </property>
+     <addaction name="actionIIR_VALUE_CURMEAS"/>
+     <addaction name="actionIIR_VALUE_VELMAS"/>
+     <addaction name="actionIIR_VALUE_PPIDU"/>
+     <addaction name="actionIIR_VALUE_VIPDU"/>
+     <addaction name="actionIIR_VALUE_CPIDU"/>
+    </widget>
+    <widget class="QMenu" name="menuPosition">
+     <property name="title">
+      <string>Position</string>
+     </property>
+     <addaction name="actionMIN_POSITION"/>
+     <addaction name="actionMAX_POSITION"/>
+    </widget>
+    <widget class="QMenu" name="menuDuty">
+     <property name="title">
+      <string>Duty</string>
+     </property>
+     <addaction name="actionDUTY_DEADZONE"/>
+     <addaction name="actionMIN_DUTY"/>
+     <addaction name="actionMAX_DUTY"/>
+    </widget>
+    <widget class="QMenu" name="menuReport">
+     <property name="title">
+      <string>Report</string>
+     </property>
+     <addaction name="actionCOMMAND_TIMEOUT"/>
+     <addaction name="actionREPORT_RATE"/>
+    </widget>
+    <widget class="QMenu" name="menuVelocity">
+     <property name="title">
+      <string>Velocity</string>
+     </property>
+     <addaction name="actionMIN_VELOCITY"/>
+     <addaction name="actionMAX_VELOCITY"/>
+    </widget>
+    <addaction name="menuTemperature"/>
+    <addaction name="menuPPID"/>
+    <addaction name="menuVPID"/>
+    <addaction name="menuCPID"/>
+    <addaction name="menuEncoder"/>
+    <addaction name="menuAXIS"/>
+    <addaction name="menuCurrent"/>
+    <addaction name="menuIIR"/>
+    <addaction name="menuDuty"/>
+    <addaction name="menuPosition"/>
+    <addaction name="menuVelocity"/>
+    <addaction name="menuReport"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuConfiguration"/>
    <addaction name="menuDevice"/>
+   <addaction name="menuParameters"/>
   </widget>
   <action name="actionConnect_roboszpon">
    <property name="text">

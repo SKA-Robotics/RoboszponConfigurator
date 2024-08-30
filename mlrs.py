@@ -1,6 +1,21 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QVBoxLayout,QAction, QMenu
-from PyQt5.QtCore import QStringListModel, QModelIndex, QTimer
+from PyQt5.QtWidgets import (
+    QApplication,
+    QMainWindow,
+    QMessageBox,
+    QVBoxLayout,
+    QWidget,
+    QListWidget,
+    QListWidgetItem,
+    QComboBox,
+    QDialog,
+    QLabel,
+    QDoubleSpinBox,
+    QPushButton,
+    QHBoxLayout,
+    QGridLayout,
+)
+from PyQt5.QtCore import QStringListModel, QModelIndex, QTimer, Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5 import uic
 
@@ -10,6 +25,63 @@ import pyqtgraph as pg
 
 CONNECTION_TIMEOUT = 1.0
 MAX_PLOT_SAMPLES = 10000
+
+
+class ParameterConfigurationDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Parameter Configuration")
+        self.layout = QGridLayout(self)
+        self.parameters = {}
+
+    def add_parameter(self, parameter_name, value, update_callback, deactivate_callback):
+        if parameter_name in self.parameters:
+            return
+
+        row = self.layout.rowCount()
+
+        label = QLabel(parameter_name)
+        spinbox = QDoubleSpinBox()
+        spinbox.setValue(value)
+        spinbox.setDecimals(4)
+        spinbox.setRange(-1000000, 1000000)  # Adjust range as needed
+
+        update_button = QPushButton("Update")
+        update_button.clicked.connect(lambda: update_callback(parameter_name, spinbox.value()))
+
+        deactivate_button = QPushButton("Deactivate")
+        deactivate_button.clicked.connect(lambda: deactivate_callback(parameter_name))
+
+        self.layout.addWidget(label, row, 0)
+        self.layout.addWidget(spinbox, row, 1)
+        self.layout.addWidget(update_button, row, 2)
+        self.layout.addWidget(deactivate_button, row, 3)
+
+        self.parameters[parameter_name] = (label, spinbox, update_button, deactivate_button)
+
+    def remove_parameter(self, parameter_name):
+        if parameter_name not in self.parameters:
+            return
+
+        widgets = self.parameters.pop(parameter_name)
+        for widget in widgets:
+            widget.deleteLater()
+
+        self.update_layout()
+
+    def update_layout(self):
+        for i in reversed(range(self.layout.count())):
+            widget = self.layout.itemAt(i).widget()
+            self.layout.removeWidget(widget)
+
+        row = 0
+        for param_name, widgets in self.parameters.items():
+            for col, widget in enumerate(widgets):
+                self.layout.addWidget(widget, row, col)
+            row += 1
+
+    def is_empty(self):
+        return not bool(self.parameters)
 
 
 class Signal:
@@ -50,22 +122,21 @@ class MyLittleRoboszponSuite(QMainWindow):
 
         self.roboszpon = None
         self.armed = False
-        
-        self.deviceList = QStringListModel()
+
+        # Zmiana QStringListModel na QComboBox
+        self.comboBoxDevices = self.findChild(QComboBox, "comboBoxDevices")
+        self.comboBoxDevices.currentIndexChanged.connect(self.comboBoxDeviceChanged)
+
         self.deviceIds = []
         self.devices = {}
-        self.deviceListView.setModel(self.deviceList)
-        self.deviceListView.clicked.connect(self.deviceListClicked)
 
-        self.init_parameters_menu()
-        self.oldParameterValue = self.parameterSpinBox.value()
+        self.init_parameters_tabs()
 
         self.armButton.clicked.connect(self.armButtonClicked)
         self.dutyButton.clicked.connect(self.dutyButtonClicked)
         self.velocityButton.clicked.connect(self.velocityButtonClicked)
         self.positionButton.clicked.connect(self.positionButtonClicked)
         self.stopAllButton.clicked.connect(self.stopAllButtonClicked)
-        self.parameterUpdateButton.clicked.connect(self.updateParameterButtonClicked)
         self.actionCommit_configuration.triggered.connect(self.commitConfiguration)
         self.actionRestore_configuration.triggered.connect(self.restoreConfiguration)
         self.actionFactory_settings.triggered.connect(self.factoryConfiguration)
@@ -82,6 +153,9 @@ class MyLittleRoboszponSuite(QMainWindow):
             self.can_notifier = can.Notifier(self.canbus, [self])
         except Exception as e:
             print(f"Couldn't start can: {e}")
+
+        # Okno dialogowe dla konfiguracji parametrów
+        self.parameterDialog = None
 
     def __del__(self):
         self.canbus.shutdown()
@@ -145,18 +219,18 @@ class MyLittleRoboszponSuite(QMainWindow):
                 )
 
     def addConnectedDevice(self, node_id):
-        self.deviceList.insertRow(self.deviceList.rowCount())
-        index = self.deviceList.index(self.deviceList.rowCount() - 1)
-        self.deviceList.setData(index, f"Roboszpon 0x{node_id:02x}", 0)
-        self.deviceIds.append(node_id)
-        self.devices[node_id] = Roboszpon()
-        self.devices[node_id].node_id = node_id
+        device_name = f"Roboszpon 0x{node_id:02x}"
+        if device_name not in [self.comboBoxDevices.itemText(i) for i in range(self.comboBoxDevices.count())]:
+            self.comboBoxDevices.addItem(device_name)
+            self.deviceIds.append(node_id)
+            self.devices[node_id] = Roboszpon()
+            self.devices[node_id].node_id = node_id
 
     def removeConnectedDevice(self, node_id):
         if node_id not in self.deviceIds:
             raise KeyError("can't remove node. there is no such node")
         index = self.deviceIds.index(node_id)
-        self.deviceList.removeRow(index)
+        self.comboBoxDevices.removeItem(index)
         self.deviceIds.remove(node_id)
         print(self.deviceIds)
 
@@ -167,7 +241,6 @@ class MyLittleRoboszponSuite(QMainWindow):
             self.arm()
         else:
             self.disarm()
-            self.updateParameterValue(self.parameterComboBox.currentText())
         self.connectionLabel.setText("Connection: OK")
         self.stateLabel.setText(
             f"Operation state: {roboszpon_lib.ROBOSZPON_MODES[self.devices[self.roboszpon].mode]}"
@@ -187,8 +260,10 @@ class MyLittleRoboszponSuite(QMainWindow):
         self.parameterConfigurationGroup.setEnabled(True)
         self.setpointGroup.setEnabled(False)
 
-    def deviceListClicked(self, index: QModelIndex):
-        self.selectDevice(self.deviceIds[index.row()])
+    def comboBoxDeviceChanged(self, index):
+        if index >= 0 and index < len(self.deviceIds):
+            node_id = self.deviceIds[index]
+            self.selectDevice(node_id)
 
     def armButtonClicked(self):
         self.armed = not self.armed
@@ -219,44 +294,49 @@ class MyLittleRoboszponSuite(QMainWindow):
             self.canbus, self.roboszpon, self.positionSpinBox.value()
         )
 
-    def parameterComboBoxChanged(self, text):
-        self.updateParameterValue(text)
+    def parameterItemDoubleClicked(self, item):
+        parameter_name = item.text()
+        self.activate_parameter_in_dialog(parameter_name)
 
-    def updateParameterValue(self, parameter_name):
-        def callback(value):
-            self.parameterSpinBox.setValue(value)
-            self.oldParameterValue = value
+    def activate_parameter_in_dialog(self, parameter_name):
+        if self.parameterDialog is None:
+            self.parameterDialog = ParameterConfigurationDialog(self)
+        
+        def update_callback(param_name, value):
+            self.updateParameterValueInDevice(param_name, value)
 
-        if self.roboszpon is None:
-            return
-        if self.devices[self.roboszpon].mode != roboszpon_lib.ROBOSZPON_MODE_STOPPED:
-            print("Can't configure runnig roboszpon")
-            return
-        roboszpon_lib.read_parameter_callback(
-            self.canbus,
-            self.can_notifier,
-            self.devices[self.roboszpon].node_id,
-            roboszpon_lib.ROBOSZPON_PARAMETERS[parameter_name],
-            callback,
+        def deactivate_callback(param_name):
+            self.parameterDialog.remove_parameter(param_name)
+            if self.parameterDialog.is_empty():
+                self.parameterDialog.close()
+                self.parameterDialog = None
+
+        self.updateParameterValue(parameter_name)
+        value = self.get_current_parameter_value(parameter_name)  # Pobierz aktualną wartość
+
+        self.parameterDialog.add_parameter(
+            parameter_name, value, update_callback, deactivate_callback
         )
+        
+        self.parameterDialog.show()
 
-    def updateParameterButtonClicked(self):
-        parameter_name = self.parameterComboBox.currentText()
-        parameter_id = roboszpon_lib.ROBOSZPON_PARAMETERS[parameter_name]
-        value = self.parameterSpinBox.value()
+    def updateParameterValueInDevice(self, parameter_name, value):
         if self.roboszpon is None:
-            self.parameterSpinBox.setValue(self.oldParameterValue)
             return
         if self.devices[self.roboszpon].mode != roboszpon_lib.ROBOSZPON_MODE_STOPPED:
-            # Maybe just disable the button...
             print("Can't configure running roboszpon")
-            self.parameterSpinBox.setValue(self.oldParameterValue)
             return
-        print(f"Sending: {parameter_name}={value}")
+        parameter_id = roboszpon_lib.ROBOSZPON_PARAMETERS[parameter_name]
         roboszpon_lib.send_parameter_write(
             self.canbus, self.roboszpon, parameter_id, value
         )
-        self.updateParameterValue(parameter_name)
+        print(f"Updated {parameter_name} to {value}")
+
+    def get_current_parameter_value(self, parameter_name):
+        #TODO: Implement this
+        if self.roboszpon is None:
+            return 0.0
+        return 0.0
 
     def commitConfiguration(self):
         roboszpon_lib.send_action_request(
@@ -267,13 +347,11 @@ class MyLittleRoboszponSuite(QMainWindow):
         roboszpon_lib.send_action_request(
             self.canbus, self.roboszpon, roboszpon_lib.ACTION_RESTORE_CONFIG
         )
-        self.updateParameterValue(self.parameterComboBox.currentText())
 
     def factoryConfiguration(self):
         roboszpon_lib.send_action_request(
             self.canbus, self.roboszpon, roboszpon_lib.ACTION_SET_FACTORY_CONFIG
         )
-        self.updateParameterValue(self.parameterComboBox.currentText())
 
     def softwareReset(self):
         roboszpon_lib.send_action_request(
@@ -304,35 +382,60 @@ class MyLittleRoboszponSuite(QMainWindow):
         self.duty_curve.setData(signal.timestamps, signal.values)
         signal = self.devices[self.roboszpon].temperature
         self.temperature_curve.setData(signal.timestamps, signal.values)
-    
-    def init_parameters_menu(self):
-        def add_group_to_menu(group_name, parameters):
-            group_menu = self.menuBar().findChild(QMenu, group_name)
-            if not group_menu:
-                group_menu = QMenu(group_name, self)
-                self.menuBar().addMenu(group_menu)
+    def updateParameterValue(self, parameter_name):
+        def callback(value):
+            self.parameterSpinBox.setValue(value)
+            self.oldParameterValue = value
 
+        if self.roboszpon is None:
+            return
+        if self.devices[self.roboszpon].mode != roboszpon_lib.ROBOSZPON_MODE_STOPPED:
+            print("Can't configure running roboszpon")
+            return
+        roboszpon_lib.read_parameter_callback(
+            self.canbus,
+            self.can_notifier,
+            self.devices[self.roboszpon].node_id,
+            roboszpon_lib.ROBOSZPON_PARAMETERS[parameter_name],
+            callback,
+        )
+    def init_parameters_tabs(self):
+        # Funkcja dodająca parametry do zakładek
+        def add_parameters_to_tab(group_name, parameters):
+            tab = QWidget()
+            layout = QVBoxLayout(tab)
+
+            list_widget = QListWidget()
             for param_name in parameters:
-                action = QAction(param_name, self)
-                action.triggered.connect(lambda checked, p=param_name: self.parameterMenuChanged(p))
-                group_menu.addAction(action)
+                item_widget = QWidget()
+                item_layout = QHBoxLayout(item_widget)
+                item_layout.setContentsMargins(0, 0, 0, 0)
+                label = QLabel(param_name)
+                activate_button = QPushButton("Aktywuj")
+                activate_button.clicked.connect(lambda _, pn=param_name: self.activate_parameter_in_dialog(pn))
+                item_layout.addWidget(label)
+                item_layout.addWidget(activate_button)
+                list_widget_item = QListWidgetItem(list_widget)
+                list_widget_item.setSizeHint(item_widget.sizeHint())
+                list_widget.setItemWidget(list_widget_item, item_widget)
 
-        add_group_to_menu("Temperature", roboszpon_lib.TEMPERATURE_PARAMETERS)
-        add_group_to_menu("PPID", roboszpon_lib.PPID_PARAMETERS)
-        add_group_to_menu("VPID", roboszpon_lib.VPID_PARAMETERS)
-        add_group_to_menu("CPID", roboszpon_lib.CPID_PARAMETERS)
-        add_group_to_menu("Encoder", roboszpon_lib.ENCODER_PARAMETERS)
-        add_group_to_menu("AXIS", roboszpon_lib.AXIS_PARAMETERS)
-        add_group_to_menu("Current", roboszpon_lib.CURRENT_PARAMETERS)
-        add_group_to_menu("IIR", roboszpon_lib.IIR_PARAMETERS)
-        add_group_to_menu("Duty", roboszpon_lib.DUTY_PARAMETERS)
-        add_group_to_menu("Position", roboszpon_lib.POSITION_PARAMETERS)
-        add_group_to_menu("Velocity", roboszpon_lib.VELOCITY_PARAMETERS)
-        add_group_to_menu("Report", roboszpon_lib.REPORTING_PARAMETERS)
+            list_widget.itemDoubleClicked.connect(self.parameterItemDoubleClicked)
 
-    def parameterMenuChanged(self, parameter_name):
-        self.label.setText(parameter_name)
-        self.updateParameterValue(parameter_name)
+            layout.addWidget(list_widget)
+            self.tabWidgetParameters.addTab(tab, group_name)
+
+        add_parameters_to_tab("Temperature", roboszpon_lib.TEMPERATURE_PARAMETERS)
+        add_parameters_to_tab("PPID", roboszpon_lib.PPID_PARAMETERS)
+        add_parameters_to_tab("VPID", roboszpon_lib.VPID_PARAMETERS)
+        add_parameters_to_tab("CPID", roboszpon_lib.CPID_PARAMETERS)
+        add_parameters_to_tab("Encoder", roboszpon_lib.ENCODER_PARAMETERS)
+        add_parameters_to_tab("AXIS", roboszpon_lib.AXIS_PARAMETERS)
+        add_parameters_to_tab("Current", roboszpon_lib.CURRENT_PARAMETERS)
+        add_parameters_to_tab("IIR", roboszpon_lib.IIR_PARAMETERS)
+        add_parameters_to_tab("Duty", roboszpon_lib.DUTY_PARAMETERS)
+        add_parameters_to_tab("Position", roboszpon_lib.POSITION_PARAMETERS)
+        add_parameters_to_tab("Velocity", roboszpon_lib.VELOCITY_PARAMETERS)
+        add_parameters_to_tab("Report", roboszpon_lib.REPORTING_PARAMETERS)
 
 
 if __name__ == "__main__":
