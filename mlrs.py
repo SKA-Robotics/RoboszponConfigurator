@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QVBoxLayout, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QMessageBox, QVBoxLayout, QFileDialog, QDialog, QDialogButtonBox, QLabel
 from PyQt5.QtCore import QStringListModel, QModelIndex, QTimer
 from PyQt5.QtGui import QPixmap
 from PyQt5 import uic
@@ -238,13 +238,13 @@ class MyLittleRoboszponSuite(QMainWindow):
             self.saveAsButtonClicked()
     
     def saveAsButtonClicked(self):
-        path, _ = QFileDialog.getSaveFileName(self, "Save As...", "","YAML Files (*.yaml)")
+        path, _ = QFileDialog.getSaveFileName(self, "Save As...", "","All Files (*);;YAML Files (*.yml, *.yaml)")
         if path:
             self.current_file_path = path
             self.saveParameters(path)
     
     def openButtonClicked(self):
-        path, _ = QFileDialog.getOpenFileName(self, "Open File...", "","YAML Files (*.yaml)")
+        path, _ = QFileDialog.getOpenFileName(self, "Open File...", "","All Files (*);;YAML Files (*.yml, *.yaml)")
         if path:
             self.loadParameters(path)
 
@@ -280,6 +280,29 @@ class MyLittleRoboszponSuite(QMainWindow):
 
     def showMessage(self, title, message):
         QMessageBox.information(self,title,message, QMessageBox.Ok)
+
+    def confirmReset(self):
+        dlg = QDialog(self)
+        dlg.setWindowTitle("Confirm Reset")
+        dlg.setFixedSize(400, 200)  # Increased the size for better visibility
+
+        layout = QVBoxLayout(dlg)
+        
+        # Add a descriptive label to make the message clearer
+        label = QLabel("Are you sure you want to reset the system? All unsaved data will be lost.")
+        label.setWordWrap(True)
+        layout.addWidget(label)
+        
+        # Create the button box with OK and Cancel buttons
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        layout.addWidget(buttonBox)
+
+        # Connect the dialog buttons to accept/reject actions
+        buttonBox.accepted.connect(dlg.accept)
+        buttonBox.rejected.connect(dlg.reject)
+
+        # Return the result of the dialog execution
+        return dlg.exec()
 
     def parameterComboBoxChanged(self, text):
         self.updateParameterValue(text)
@@ -338,9 +361,10 @@ class MyLittleRoboszponSuite(QMainWindow):
         self.updateParameterValue(self.parameterComboBox.currentText())
 
     def softwareReset(self):
-        roboszpon_lib.send_action_request(
-            self.canbus, self.roboszpon, roboszpon_lib.ACTION_SOFTWARE_RESET
-        )
+        if self.confirmReset():
+            roboszpon_lib.send_action_request(
+                self.canbus, self.roboszpon, roboszpon_lib.ACTION_SOFTWARE_RESET
+            )
 
     def init_plot(self):
         self.plot = pg.PlotWidget()
